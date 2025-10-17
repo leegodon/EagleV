@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - AI Security Monitor</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'navy': '#1a1d29',
+                        'cyan': '#00d4ff',
+                        'green': '#00ff88',
+                        'amber': '#ffa500',
+                        'red': '#ff4757',
+                        'gray': '#6c7293',
+                        'charcoal': '#0f1419'
+                    },
+                    fontFamily: {
+                        'orbitron': ['Orbitron', 'monospace'],
+                        'inter': ['Inter', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f1419 0%, #1a1d29 50%, #0f1419 100%);
+            min-height: 100vh;
+        }
+        
+        .glass-panel {
+            background: rgba(26, 29, 41, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+        
+        .nav-link {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-link:hover {
+            color: #00d4ff;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #00d4ff;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #00d4ff, #00ff88);
+            border: none;
+            color: #0f1419;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid #00d4ff;
+            color: #00d4ff;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0, 212, 255, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+        }
+        
+        .status-online { background: #00ff88; }
+        .status-offline { background: #ff4757; }
+        .status-warning { background: #ffa500; }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+        
+        .tab-button {
+            padding: 12px 24px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+        
+        .tab-button.active {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: #00d4ff;
+            color: #00d4ff;
+        }
+        
+        .tab-button:not(.active):hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, rgba(26, 29, 41, 0.9), rgba(42, 45, 57, 0.9));
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.2);
+        }
+        
+        .camera-item {
+            background: rgba(26, 29, 41, 0.6);
+            border: 1px solid rgba(108, 114, 147, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .camera-item:hover {
+            border-color: #00d4ff;
+            background: rgba(26, 29, 41, 0.8);
+        }
+        
+        .user-item {
+            background: rgba(26, 29, 41, 0.6);
+            border: 1px solid rgba(108, 114, 147, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .user-item:hover {
+            border-color: #00d4ff;
+            background: rgba(26, 29, 41, 0.8);
+        }
+        
+        .pricing-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 3px;
+            background: #2a2d39;
+            outline: none;
+        }
+        
+        .pricing-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #00d4ff;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+        
+        .pricing-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #00d4ff;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: rgba(26, 29, 41, 0.95);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background: #2a2d39;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-switch.active {
+            background: #00d4ff;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(24px);
+        }
+    </style>
+</head>
+<body class="font-inter text-white">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-panel">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-gradient-to-r from-cyan to-green rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-charcoal" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <h1 class="text-xl font-orbitron font-bold text-cyan">AI Security Monitor</h1>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-6">
+                    <a href="index.html" class="nav-link text-gray hover:text-cyan">Dashboard</a>
+                    <a href="admin.html" class="nav-link text-white hover:text-cyan">Admin</a>
+                    <a href="pricing.html" class="nav-link text-gray hover:text-cyan">Pricing</a>
+                    <a href="auth.html" class="nav-link text-gray hover:text-cyan">Login</a>
+                    
+                    <div class="flex items-center space-x-2">
+                        <div class="status-indicator status-online"></div>
+                        <span class="text-sm text-gray">Admin Mode</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="pt-20 pb-8">
+        <div class="max-w-7xl mx-auto px-6">
+            <!-- Header Section -->
+            <div class="mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-3xl font-orbitron font-bold text-white mb-2">System Administration</h2>
+                        <p class="text-gray">Manage cameras, users, AI settings, and system configuration</p>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <button class="btn-secondary px-4 py-2 rounded-lg" onclick="exportSystemData()">
+                            Export Data
+                        </button>
+                        <button class="btn-primary px-4 py-2 rounded-lg" onclick="showSystemRestartModal()">
+                            Restart System
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Admin Tabs -->
+            <div class="mb-8">
+                <div class="flex space-x-4 overflow-x-auto">
+                    <button class="tab-button active" onclick="switchTab('cameras')">
+                        <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                        </svg>
+                        Camera Management
+                    </button>
+                    <button class="tab-button" onclick="switchTab('users')">
+                        <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                        </svg>
+                        User Management
+                    </button>
+                    <button class="tab-button" onclick="switchTab('ai')">
+                        <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        AI Configuration
+                    </button>
+                    <button class="tab-button" onclick="switchTab('pricing')">
+                        <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"/>
+                        </svg>
+                        Pricing Management
+                    </button>
+                    <button class="tab-button" onclick="switchTab('system')">
+                        <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                        </svg>
+                        System Settings
+                    </button>
+                    <button class="tab-button" onclick="switchTab('payments')">
+                        <svg class="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"/>
+                        </svg>
+                        Payment Collection
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Tab Content -->
+            <div id="tab-content">
+                <!-- Camera Management Tab -->
+                <div id="cameras-tab" class="tab-content">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Camera List -->
+                        <div class="lg:col-span-2">
+                            <div class="glass-panel rounded-xl p-6">
+                                <div class="flex items-center justify-between mb-6">
+                                    <h3 class="text-xl font-semibold text-white">Connected Cameras</h3>
+                                    <button class="btn-primary px-4 py-2 rounded-lg" onclick="showAddCameraModal()">
+                                        Add Camera
+                                    </button>
+                                </div>
+                                
+                                <div class="space-y-4" id="camera-list">
+                                    <!-- Camera items will be generated here -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Camera Stats -->
+                        <div class="space-y-6">
+                            <div class="glass-panel rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">Camera Statistics</h3>
+                                <div class="space-y-4">
+                                    <div class="metric-card rounded-lg p-4">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-gray">Total Cameras</span>
+                                            <span class="text-2xl font-bold text-cyan" id="total-cameras">12</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="metric-card rounded-lg p-4">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-gray">Online</span>
+                                            <span class="text-2xl font-bold text-green" id="online-cameras">10</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="metric-card rounded-lg p-4">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-gray">Offline</span>
+                                            <span class="text-2xl font-bold text-red" id="offline-cameras">2</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="glass-panel rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+                                <div class="space-y-3">
+                                    <button class="w-full btn-secondary px-4 py-2 rounded-lg text-left" onclick="restartAllCameras()">
+                                        Restart All Cameras
+                                    </button>
+                                    <button class="w-full btn-secondary px-4 py-2 rounded-lg text-left" onclick="calibrateAllCameras()">
+                                        Calibrate All Cameras
+                                    </button>
+                                    <button class="w-full btn-secondary px-4 py-2 rounded-lg text-left" onclick="updateCameraFirmware()">
+                                        Update Firmware
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- User Management Tab -->
+                <div id="users-tab" class="tab-content hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- User List -->
+                        <div class="lg:col-span-2">
+                            <div class="glass-panel rounded-xl p-6">
+                                <div class="flex items-center justify-between mb-6">
+                                    <h3 class="text-xl font-semibold text-white">System Users</h3>
+                                    <button class="btn-primary px-4 py-2 rounded-lg" onclick="showAddUserModal()">
+                                        Add User
+                                    </button>
+                                </div>
+                                
+                                <div class="space-y-4" id="user-list">
+                                    <!-- User items will be generated here -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- User Stats -->
+                        <div class="space-y-6">
+                            <div class="glass-panel rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">User Statistics</h3>
+                                <div class="space-y-4">
+                                    <div class="metric-card rounded-lg p-4">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-gray">Total Users</span>
+                                            <span class="text-2xl font-bold text-cyan" id="total-users">24</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="metric-card rounded-lg p-4">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-gray">Active Today</span>
+                                            <span class="text-2xl font-bold text-green" id="active-users">18</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="metric-card rounded-lg p-4">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-gray">Admins</span>
+                                            <span class="text-2xl font-bold text-amber" id="admin-users">3</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="glass-panel rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">Security Settings</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray">Two-Factor Auth</span>
+                                        <div class="toggle-switch active" onclick="toggleSetting(this)">
+                                            <div class="toggle-slider"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray">Login Notifications</span>
+                                        <div class="toggle-switch active" onclick="toggleSetting(this)">
+                                            <div class="toggle-slider"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray">Session Timeout</span>
+                                        <select class="bg-navy border border-gray-600 rounded px-3 py-1 text-sm text-white">
+                                            <option>30 minutes</option>
+                                            <option>1 hour</option>
+                                            <option>2 hours</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI Configuration Tab -->
+                <div id="ai-tab" class="tab-content hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- AI Settings -->
+                        <div class="glass-panel rounded-xl p-6">
+                            <h3 class="text-xl font-semibold text-white mb-6">AI Detection Settings</h3>
+                            
+                            <div class="space-y-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray mb-2">Detection Sensitivity</label>
+                                    <input type="range" min="0" max="100" value="75" class="pricing-slider w-full" id="sensitivity-slider">
+                                    <div class="flex justify-between text-xs text-gray mt-1">
+                                        <span>Low</span>
+                                        <span id="sensitivity-value">75%</span>
+                                        <span>High</span>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray mb-2">Face Recognition Threshold</label>
+                                    <input type="range" min="0" max="100" value="85" class="pricing-slider w-full" id="face-threshold-slider">
+                                    <div class="flex justify-between text-xs text-gray mt-1">
+                                        <span>Relaxed</span>
+                                        <span id="face-threshold-value">85%</span>
+                                        <span>Strict</span>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray mb-2">Motion Detection Area</label>
+                                    <select class="w-full bg-navy border border-gray-600 rounded-lg px-4 py-2 text-white">
+                                        <option>Full Frame</option>
+                                        <option>Center Area</option>
+                                        <option>Custom Zone</option>
+                                        <option>Perimeter Only</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray">Enable Object Tracking</span>
+                                    <div class="toggle-switch active" onclick="toggleSetting(this)">
+                                        <div class="toggle-slider"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray">Enable Behavior Analysis</span>
+                                    <div class="toggle-switch active" onclick="toggleSetting(this)">
+                                        <div class="toggle-slider"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- AI Performance -->
+                        <div class="space-y-6">
+                            <div class="glass-panel rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">AI Performance</h3>
+                                <div id="ai-performance-chart" style="height: 200px;"></div>
+                            </div>
+                            
+                            <div class="glass-panel rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">Company Policy Integration</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray mb-2">Policy Name</label>
+                                        <input type="text" class="w-full bg-navy border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="Hotel Guest Privacy Policy">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray mb-2">Restricted Areas</label>
+                                        <select class="w-full bg-navy border border-gray-600 rounded-lg px-4 py-2 text-white">
+                                            <option>Guest Rooms</option>
+                                            <option>Bathrooms</option>
+                                            <option>Spa Areas</option>
+                                            <option>Private Offices</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray">AI Policy Enforcement</span>
+                                        <div class="toggle-switch active" onclick="toggleSetting(this)">
+                                            <div class="toggle-slider"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray">Privacy Masking</span>
+                                        <div class="toggle-switch active" onclick="toggleSetting(this)">
+                                            <div class="toggle-slider"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <button class="btn-primary px-4 py-2 rounded-lg w-full">Save Policy</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pricing Management Tab -->
+                <div id="pricing-tab" class="tab-content hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Pricing Plans -->
+                        <div class="glass-panel rounded-xl p-6">
+                            <h3 class="text-xl font-semibold text-white mb-6">Pricing Plans</h3>
+                            
+                            <div class="space-y-4" id="pricing-plans">
+                                <!-- Pricing plans will be generated here -->
+                            </div>
+                            
+                            <button class="w-full btn-primary px-4 py-2 rounded-lg mt-6" onclick="showAddPlanModal()">
+                                Add New Plan
+                            </button>
+                        </div>
+                        
+                        <!-- Pricing Settings -->
+                        <div class="space-y-6">
+                            <div class="glass-panel rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">Global Settings</h3>
+                                
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray mb-2">Default Currency</label>
+                                        <select class="w-full bg-navy border border-gray-600 rounded-lg px-4 py-2 text-white">
+                                            <option>USD ($)</option>
+                                            <option>EUR (€)</option>
+                                            <option>GBP (£)</option>
+                                            <option>CAD (C$)</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray mb-2">Tax Rate (%)</label>
+                                        <input type="number" value="8.25" class="w-full bg-navy border border-gray-600 rounded-lg px-4 py-2 text-white">
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray">Enable Free Trial</span>
+                                        <div class="toggle-switch active" onclick="toggleSetting(this)">
+                                            <div class="toggle-slider"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray mb-2">Trial Duration (days)</label>
+                                        <input type="number" value="14" class="w-full bg-navy border border-gray-600 rounded-lg px-4 py-2 text-white">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="glass-panel rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">Revenue Analytics</h3>
+                                <div id="revenue-chart" style="height: 200px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- System Settings Tab -->
+                <div id="system-tab" class="tab-content hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- System Configuration -->
+                        <div class="glass-panel rounded-xl p-6">
+                            <h3 class="text-xl font-semibold text-white mb-6">System Configuration</h3>
+                            
+                            <div class="space-y-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray mb-2">System Name</label>
+                                    <input type="text" value="AI Security Monitor" class="w-full bg-navy border border-gray-600 rounded-lg px-4 py-2 text-white">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray mb-2">Data Retention (days)</label>
+                                    <input type="number" value="30" class="w-full bg-navy border border-gray-600 rounded-lg px-4 py-2 text-white">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray mb-2">Max Recording Quality</label>
+                                    <select class="w-full bg-navy border border-gray-600 rounded-lg px-4 py-2 text-white">
+                                        <option>1080p</option>
+                                        <option>720p</option>
+                                        <option>480p</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray">Auto Backup</span>
+                                    <div class="toggle-switch active" onclick="toggleSetting(this)">
+                                        <div class="toggle-slider"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray">Email Notifications</span>
+                                    <div class="toggle-switch active" onclick="toggleSetting(this)">
+                                        <div class="toggle-slider"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- System Status -->
+                        <div class="space-y-6">
+                            <div class="glass-panel rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">System Health</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray">CPU Usage</span>
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-20 h-2 bg-gray-700 rounded-full overflow-hidden">
+                                                <div class="h-full bg-gradient-to-r from-cyan to-green rounded-full" style="width: 65%"></div>
+                                            </div>
+                                            <span class="text-sm text-white font-mono">65%</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray">Memory</span>
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-20 h-2 bg-gray-700 rounded-full overflow-hidden">
+                                                <div class="h-full bg-gradient-to-r from-cyan to-green rounded-full" style="width: 78%"></div>
+                                            </div>
+                                            <span class="text-sm text-white font-mono">78%</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray">Storage</span>
+                                        <div class="flex items-center space-x-2">
+                                            <div class="w-20 h-2 bg-gray-700 rounded-full overflow-hidden">
+                                                <div class="h-full bg-gradient-to-r from-amber to-red rounded-full" style="width: 85%"></div>
+                                            </div>
+                                            <span class="text-sm text-white font-mono">85%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="glass-panel rounded-xl p-6">
+                                <h3 class="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+                                <div class="space-y-3">
+                                    <button class="w-full btn-secondary px-4 py-2 rounded-lg text-left" onclick="clearCache()">
+                                        Clear System Cache
+                                    </button>
+                                    <button class="w-full btn-secondary px-4 py-2 rounded-lg text-left" onclick="optimizeDatabase()">
+                                        Optimize Database
+                                    </button>
+                                    <button class="w-full btn-secondary px-4 py-2 rounded-lg text-left" onclick="generateReport()">
+                                        Generate System Report
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Payment Collection Tab -->
+            <div id="payments-tab" class="tab-content hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Payment Methods Configuration -->
+                    <div class="lg:col-span-2">
+                        <div class="glass-panel rounded-xl p-6">
+                            <h3 class="text-xl font-semibold text-white mb-6">Payment Methods</h3>
+                            
+                            <div class="space-y-6">
+                                <!-- PayPal Configuration -->
+                                <div class="border border-gray-600 rounded-lg p-4">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
+                                                <svg class="w-5 h-5 text-white" viewBox="0 0 24 24">
+                                                    <path fill="currentColor" d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.026.175-.041.26-.93 4.778-4.005 7.201-9.138 7.201h-2.19a.9.9 0 0 0-.89.756l-.94 5.982a.421.421 0 0 0 .417.513h3.839c.404 0 .782-.238.852-.628l.171-1.074c.083-.529.494-.903 1.05-.903h.662c3.32 0 5.92-1.35 6.683-5.24.567-2.93.157-5.547-1.234-7.267z"/>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <h4 class="text-white font-semibold">PayPal</h4>
+                                                <p class="text-sm text-gray">Accept PayPal payments</p>
+                                            </div>
+                                        </div>
+                                        <div class="toggle-switch active" onclick="toggleSetting(this)">
+                                            <div class="toggle-slider"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray mb-2">PayPal Email</label>
+                                            <input type="email" class="w-full bg-navy border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="your-paypal@email.com">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray mb-2">Merchant ID</label>
+                                            <input type="text" class="w-full bg-navy border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="ABC123DEF456">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Bank Wire Transfer Configuration -->
+                                <div class="border border-gray-600 rounded-lg p-4">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-8 h-8 bg-green-600 rounded flex items-center justify-center">
+                                                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"/>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <h4 class="text-white font-semibold">Bank Wire Transfer</h4>
+                                                <p class="text-sm text-gray">Direct bank transfers</p>
+                                            </div>
+                                        </div>
+                                        <div class="toggle-switch active" onclick="toggleSetting(this)">
+                                            <div class="toggle-slider"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray mb-2">Bank Name</label>
+                                            <input type="text" class="w-full bg-navy border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="First National Bank">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray mb-2">Account Number</label>
+                                            <input type="text" class="w-full bg-navy border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="1234567890">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray mb-2">Routing Number</label>
+                                            <input type="text" class="w-full bg-navy border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="012345678">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray mb-2">SWIFT Code</label>
+                                            <input type="text" class="w-full bg-navy border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="FNBAUS33">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Stripe Configuration -->
+                                <div class="border border-gray-600 rounded-lg p-4">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div class="flex items-center space-x-3">
+                                            <div class="w-8 h-8 bg-purple-600 rounded flex items-center justify-center">
+                                                <svg class="w-5 h-5 text-white" viewBox="0 0 24 24">
+                                                    <path fill="currentColor" d="M11.173 12.312L8.71 17.09l-2.563-4.777-1.174 2.187L8.71 22h2.926l4.87-9.688H11.173zM24 9.697L14.127 0H9.873L4.405 9.697h2.926l1.174-2.187L10.063 12l3.29-6.375L16.547 12l3.29-6.375L23.107 0H14.127L24 9.697z"/>
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <h4 class="text-white font-semibold">Stripe</h4>
+                                                <p class="text-sm text-gray">Credit card processing</p>
+                                            </div>
+                                        </div>
+                                        <div class="toggle-switch active" onclick="toggleSetting(this)">
+                                            <div class="toggle-slider"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray mb-2">Publishable Key</label>
+                                            <input type="text" class="w-full bg-navy border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="pk_live_...">
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray mb-2">Secret Key</label>
+                                            <input type="password" class="w-full bg-navy border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="sk_live_...">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Tracking -->
+                    <div class="space-y-6">
+                        <div class="glass-panel rounded-xl p-6">
+                            <h3 class="text-lg font-semibold text-white mb-4">Payment Tracking</h3>
+                            <div class="space-y-4">
+                                <div class="metric-card rounded-lg p-4">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray">Today's Revenue</span>
+                                        <span class="text-2xl font-bold text-green">$2,847</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="metric-card rounded-lg p-4">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray">Pending Payments</span>
+                                        <span class="text-2xl font-bold text-amber">3</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="metric-card rounded-lg p-4">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray">Successful Transactions</span>
+                                        <span class="text-2xl font-bold text-cyan">127</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="glass-panel rounded-xl p-6">
+                            <h3 class="text-lg font-semibold text-white mb-4">Recent Transactions</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between p-3 bg-navy/50 rounded-lg">
+                                    <div>
+                                        <div class="text-white font-semibold">Hotel Plus Plan</div>
+                                        <div class="text-sm text-gray">PayPal - john@hotel.com</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-green font-semibold">$56.00</div>
+                                        <div class="text-xs text-gray">Completed</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between p-3 bg-navy/50 rounded-lg">
+                                    <div>
+                                        <div class="text-white font-semibold">Enterprise 50</div>
+                                        <div class="text-sm text-gray">Bank Wire - ABC Hotels</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-green font-semibold">$280.00</div>
+                                        <div class="text-xs text-gray">Completed</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center justify-between p-3 bg-navy/50 rounded-lg">
+                                    <div>
+                                        <div class="text-white font-semibold">Hotel Basic</div>
+                                        <div class="text-sm text-gray">Stripe - info@company.com</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-amber font-semibold">$28.00</div>
+                                        <div class="text-xs text-gray">Pending</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button class="w-full btn-secondary px-4 py-2 rounded-lg mt-4" onclick="viewAllTransactions()">
+                                View All Transactions
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+    <!-- Add Camera Modal -->
+    <div id="add-camera-modal" class="modal">
+        <div class="modal-content p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-semibold text-white">Add New Camera</h3>
+                <button onclick="closeModal('add-camera-modal')" class="text-gray hover:text-white">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <form class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray mb-2">Camera Name</label>
+                    <input type="text" class="w-full bg-navy border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="Enter camera name">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray mb-2">Camera URL</label>
+                    <input type="text" class="w-full bg-navy border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="rtsp://camera-ip/stream">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray mb-2">Location</label>
+                    <input type="text" class="w-full bg-navy border border-gray-600 rounded-lg px-4 py-2 text-white" placeholder="Building A, Floor 1">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray mb-2">Quality</label>
+                    <select class="w-full bg-navy border border-gray-600 rounded-lg px-4 py-2 text-white">
+                        <option>1080p</option>
+                        <option>720p</option>
+                        <option>480p</option>
+                    </select>
+                </div>
+                
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray">Enable AI Detection</span>
+                    <div class="toggle-switch active" onclick="toggleSetting(this)">
+                        <div class="toggle-slider"></div>
+                    </div>
+                </div>
+                
+                <div class="flex space-x-4 pt-4">
+                    <button type="button" class="flex-1 btn-secondary px-4 py-2 rounded-lg" onclick="closeModal('add-camera-modal')">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 btn-primary px-4 py-2 rounded-lg">
+                        Add Camera
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="mt-16 py-8 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <p class="text-gray text-sm">&copy; 2024 AI Security Monitor. Advanced surveillance technology for modern security operations.</p>
+        </div>
+    </footer>
+    
+    <script>
+        // Admin Panel JavaScript
+        let currentTab = 'cameras';
+        
+        // Initialize admin panel
+        document.addEventListener('DOMContentLoaded', () => {
+            generateCameraList();
+            generateUserList();
+            generatePricingPlans();
+            initializeAIChart();
+            initializeRevenueChart();
+            setupSliders();
+        });
+        
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+            
+            currentTab = tabName;
+        }
+        
+        // Generate camera list
+        function generateCameraList() {
+            const cameraList = document.getElementById('camera-list');
+            const cameras = [
+                { id: 1, name: 'Main Entrance', location: 'Building A', status: 'online', quality: '1080p' },
+                { id: 2, name: 'Parking Lot', location: 'Building A', status: 'online', quality: '1080p' },
+                { id: 3, name: 'Reception', location: 'Building B', status: 'offline', quality: '720p' },
+                { id: 4, name: 'Server Room', location: 'Building B', status: 'online', quality: '1080p' },
+                { id: 5, name: 'Warehouse', location: 'Building C', status: 'online', quality: '720p' },
+                { id: 6, name: 'Loading Dock', location: 'Building C', status: 'warning', quality: '1080p' }
+            ];
+            
+            cameraList.innerHTML = cameras.map(camera => `
+                <div class="camera-item rounded-lg p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-16 h-12 bg-gradient-to-r from-gray-600 to-gray-700 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-semibold">${camera.name}</h4>
+                                <p class="text-sm text-gray">${camera.location} • ${camera.quality}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center space-x-3">
+                            <div class="flex items-center space-x-2">
+                                <div class="status-indicator status-${camera.status}"></div>
+                                <span class="text-sm text-gray capitalize">${camera.status}</span>
+                            </div>
+                            
+                            <div class="flex space-x-2">
+                                <button class="p-2 text-gray hover:text-cyan" onclick="editCamera(${camera.id})">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                                    </svg>
+                                </button>
+                                <button class="p-2 text-gray hover:text-red" onclick="deleteCamera(${camera.id})">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd"/>
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 012 0v4a1 1 0 11-2 0V7zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V7a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Generate user list
+        function generateUserList() {
+            const userList = document.getElementById('user-list');
+            const users = [
+                { id: 1, name: 'John Smith', email: 'john@company.com', role: 'Admin', status: 'active', lastLogin: '2 hours ago' },
+                { id: 2, name: 'Sarah Johnson', email: 'sarah@company.com', role: 'Manager', status: 'active', lastLogin: '1 day ago' },
+                { id: 3, name: 'Mike Chen', email: 'mike@company.com', role: 'Viewer', status: 'inactive', lastLogin: '1 week ago' },
+                { id: 4, name: 'Emily Davis', email: 'emily@company.com', role: 'Manager', status: 'active', lastLogin: '3 hours ago' },
+                { id: 5, name: 'Alex Rodriguez', email: 'alex@company.com', role: 'Admin', status: 'active', lastLogin: '30 minutes ago' }
+            ];
+            
+            userList.innerHTML = users.map(user => `
+                <div class="user-item rounded-lg p-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 bg-gradient-to-r from-cyan to-green rounded-full flex items-center justify-center">
+                                <span class="text-white font-semibold text-sm">${user.name.split(' ').map(n => n[0]).join('')}</span>
+                            </div>
+                            <div>
+                                <h4 class="text-white font-semibold">${user.name}</h4>
+                                <p class="text-sm text-gray">${user.email}</p>
+                                <p class="text-xs text-gray">Last login: ${user.lastLogin}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center space-x-3">
+                            <span class="px-2 py-1 text-xs rounded-full ${user.role === 'Admin' ? 'bg-red/20 text-red' : user.role === 'Manager' ? 'bg-amber/20 text-amber' : 'bg-gray/20 text-gray'}">${user.role}</span>
+                            
+                            <div class="flex space-x-2">
+                                <button class="p-2 text-gray hover:text-cyan" onclick="editUser(${user.id})">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                                    </svg>
+                                </button>
+                                <button class="p-2 text-gray hover:text-red" onclick="deleteUser(${user.id})">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" clip-rule="evenodd"/>
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 012 0v4a1 1 0 11-2 0V7zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V7a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Generate pricing plans
+        function generatePricingPlans() {
+            const pricingPlans = document.getElementById('pricing-plans');
+            const plans = [
+                { name: 'Free', price: 0, features: ['1 Camera', 'Basic AI Detection', '7 Day Storage', 'Email Support'], popular: false },
+                { name: 'Starter', price: 29, features: ['5 Cameras', 'Advanced AI Detection', '30 Day Storage', 'Priority Support'], popular: true },
+                { name: 'Professional', price: 99, features: ['20 Cameras', 'Full AI Suite', '90 Day Storage', 'Phone Support'], popular: false },
+                { name: 'Enterprise', price: 299, features: ['Unlimited Cameras', 'Custom AI Models', '365 Day Storage', '24/7 Support'], popular: false }
+            ];
+            
+            pricingPlans.innerHTML = plans.map(plan => `
+                <div class="border border-gray-600 rounded-lg p-4 ${plan.popular ? 'border-cyan' : ''}">
+                    <div class="flex items-center justify-between mb-3">
+                        <h4 class="text-white font-semibold">${plan.name}</h4>
+                        ${plan.popular ? '<span class="text-xs bg-cyan text-charcoal px-2 py-1 rounded">Popular</span>' : ''}
+                    </div>
+                    
+                    <div class="mb-4">
+                        <span class="text-2xl font-bold text-white">$${plan.price}</span>
+                        <span class="text-gray text-sm">/month</span>
+                    </div>
+                    
+                    <ul class="space-y-2 mb-4">
+                        ${plan.features.map(feature => `
+                            <li class="text-sm text-gray flex items-center">
+                                <svg class="w-4 h-4 text-green mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                ${feature}
+                            </li>
+                        `).join('')}
+                    </ul>
+                    
+                    <div class="flex space-x-2">
+                        <button class="flex-1 btn-secondary px-3 py-2 rounded text-sm" onclick="editPlan('${plan.name}')">
+                            Edit
+                        </button>
+                        <button class="flex-1 btn-primary px-3 py-2 rounded text-sm" onclick="deletePlan('${plan.name}')">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Initialize AI performance chart
+        function initializeAIChart() {
+            const chart = echarts.init(document.getElementById('ai-performance-chart'));
+            const option = {
+                backgroundColor: 'transparent',
+                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                xAxis: {
+                    type: 'category',
+                    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    axisLine: { lineStyle: { color: '#6c7293' } },
+                    axisLabel: { color: '#6c7293', fontSize: 10 }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: { lineStyle: { color: '#6c7293' } },
+                    axisLabel: { color: '#6c7293', fontSize: 10 },
+                    splitLine: { lineStyle: { color: '#2a2d39' } }
+                },
+                series: [{
+                    data: [92, 95, 94, 96, 93, 91, 94],
+                    type: 'line',
+                    smooth: true,
+                    lineStyle: { color: '#00d4ff', width: 2 },
+                    itemStyle: { color: '#00d4ff' },
+                    areaStyle: {
+                        color: {
+                            type: 'linear',
+                            x: 0, y: 0, x2: 0, y2: 1,
+                            colorStops: [
+                                { offset: 0, color: 'rgba(0, 212, 255, 0.3)' },
+                                { offset: 1, color: 'rgba(0, 212, 255, 0.05)' }
+                            ]
+                        }
+                    }
+                }]
+            };
+            chart.setOption(option);
+        }
+        
+        // Initialize revenue chart
+        function initializeRevenueChart() {
+            const chart = echarts.init(document.getElementById('revenue-chart'));
+            const option = {
+                backgroundColor: 'transparent',
+                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                xAxis: {
+                    type: 'category',
+                    data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    axisLine: { lineStyle: { color: '#6c7293' } },
+                    axisLabel: { color: '#6c7293', fontSize: 10 }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: { lineStyle: { color: '#6c7293' } },
+                    axisLabel: { color: '#6c7293', fontSize: 10 },
+                    splitLine: { lineStyle: { color: '#2a2d39' } }
+                },
+                series: [{
+                    data: [12500, 15200, 18900, 22300, 25600, 28900],
+                    type: 'bar',
+                    itemStyle: { color: '#00ff88' },
+                    barWidth: '60%'
+                }]
+            };
+            chart.setOption(option);
+        }
+        
+        // Setup sliders
+        function setupSliders() {
+            const sensitivitySlider = document.getElementById('sensitivity-slider');
+            const faceThresholdSlider = document.getElementById('face-threshold-slider');
+            
+            sensitivitySlider.addEventListener('input', (e) => {
+                document.getElementById('sensitivity-value').textContent = e.target.value + '%';
+            });
+            
+            faceThresholdSlider.addEventListener('input', (e) => {
+                document.getElementById('face-threshold-value').textContent = e.target.value + '%';
+            });
+        }
+        
+        // Modal functions
+        function showAddCameraModal() {
+            document.getElementById('add-camera-modal').classList.add('show');
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+        
+        // Toggle switch function
+        function toggleSetting(element) {
+            element.classList.toggle('active');
+        }
+        
+ // Action functions
+        function editCamera(id) {
+            alert(`Edit camera ${id}`);
+        }
+        
+        function deleteCamera(id) {
+            if (confirm('Are you sure you want to delete this camera?')) {
+                alert(`Camera ${id} deleted`);
+            }
+        }
+        
+        function editUser(id) {
+            alert(`Edit user ${id}`);
+        }
+        
+        function deleteUser(id) {
+            if (confirm('Are you sure you want to delete this user?')) {
+                alert(`User ${id} deleted`);
+            }
+        }
+        
+        function editPlan(name) {
+            alert(`Edit plan: ${name}`);
+        }
+        
+        function deletePlan(name) {
+            if (confirm(`Are you sure you want to delete the ${name} plan?`)) {
+                alert(`Plan ${name} deleted`);
+            }
+        }
+        
+        function showAddUserModal() {
+            alert('Add User Modal - Coming Soon');
+        }
+        
+        function showAddPlanModal() {
+            alert('Add Plan Modal - Coming Soon');
+        }
+        
+        function showSystemRestartModal() {
+            if (confirm('Are you sure you want to restart the system?')) {
+                alert('System restart initiated...');
+            }
+        }
+        
+        function restartAllCameras() {
+            alert('Restarting all cameras...');
+        }
+        
+        function calibrateAllCameras() {
+            alert('Calibrating all cameras...');
+        }
+        
+        function updateCameraFirmware() {
+            alert('Updating camera firmware...');
+        }
+        
+        function exportSystemData() {
+            alert('Exporting system data...');
+        }
+        
+        function clearCache() {
+            alert('System cache cleared');
+        }
+        
+        function optimizeDatabase() {
+            alert('Database optimization completed');
+        }
+        
+        function generateReport() {
+            alert('System report generated');
+        }
+    </script>
+</body>
+</html>

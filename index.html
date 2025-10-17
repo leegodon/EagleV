@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Security Monitor - Advanced Surveillance Platform</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/splitting@1.0.6/dist/splitting.css">
+    <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.min.js"></script>
+    
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+     crossorigin="anonymous"></script>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'navy': '#1a1d29',
+                        'cyan': '#00d4ff',
+                        'green': '#00ff88',
+                        'amber': '#ffa500',
+                        'red': '#ff4757',
+                        'gray': '#6c7293',
+                        'charcoal': '#0f1419'
+                    },
+                    fontFamily: {
+                        'orbitron': ['Orbitron', 'monospace'],
+                        'inter': ['Inter', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f1419 0%, #1a1d29 50%, #0f1419 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            .camera-feed:hover {
+                transform: none;
+                box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+            }
+            
+            .metric-card:hover {
+                transform: none;
+                box-shadow: 0 4px 15px rgba(0, 212, 255, 0.1);
+            }
+            
+            .pricing-card:hover {
+                transform: none;
+                box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+            }
+        }
+        
+        /* Touch-friendly interactions */
+        @media (hover: none) and (pointer: coarse) {
+            .camera-feed:active {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+            }
+        }
+        
+        /* Smooth scrolling for iOS/Android */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Prevent zoom on input focus for iOS */
+        input:focus {
+            font-size: 16px;
+        }
+        
+        /* Touch target sizing */
+        .btn-primary, .btn-secondary, .nav-link {
+            min-height: 44px;
+            min-width: 44px;
+        }
+        
+        .glow {
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+        
+        .glow-cyan {
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+        }
+        
+        .camera-feed {
+            position: relative;
+            border: 2px solid transparent;
+            background: linear-gradient(45deg, #1a1d29, #2a2d39) padding-box,
+                        linear-gradient(45deg, #00d4ff, #00ff88) border-box;
+            transition: all 0.3s ease;
+        }
+        
+        .camera-feed:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+        
+        .detection-box {
+            position: absolute;
+            border: 2px solid #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+            backdrop-filter: blur(2px);
+            animation: pulse 2s infinite;
+        }
+        
+        .name-tag {
+            position: absolute;
+            background: rgba(0, 212, 255, 0.9);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            backdrop-filter: blur(4px);
+            box-shadow: 0 2px 10px rgba(0, 212, 255, 0.3);
+        }
+        
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+        }
+        
+        .status-working { background: #00ff88; }
+        .status-break { background: #ffa500; }
+        .status-away { background: #6c7293; }
+        .status-alert { background: #ff4757; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+        
+        .particle-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+        }
+        
+        .glass-panel {
+            background: rgba(26, 29, 41, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+        
+        .nav-link {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-link:hover {
+            color: #00d4ff;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #00d4ff;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, rgba(26, 29, 41, 0.9), rgba(42, 45, 57, 0.9));
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #00d4ff, #00ff88);
+            border: none;
+            color: #0f1419;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+        }
+        
+        .alert-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="font-inter text-white">
+    <!-- Particle Background -->
+    <div id="particle-bg" class="particle-bg"></div>
+    
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-panel">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-gradient-to-r from-cyan to-green rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-charcoal" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 2L3 7v11a1 1 0 001 1h3v-6h6v6h3a1 1 0 001-1V7l-7-5z"/>
+                                <path fill-rule="evenodd" d="M10 2L3 7v11a1 1 0 001 1h3v-6h6v6h3a1 1 0 001-1V7l-7-5zM6 18v-8h8v8H6z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <h1 class="text-xl font-orbitron font-bold text-cyan">Eagle Vision</h1>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-6">
+                    <a href="index.html" class="nav-link text-white hover:text-cyan">Dashboard</a>
+                    <a href="admin.html" class="nav-link text-gray hover:text-cyan">Admin</a>
+                    <a href="pricing.html" class="nav-link text-gray hover:text-cyan">Pricing</a>
+                    <a href="auth.html" class="nav-link text-gray hover:text-cyan">Login</a>
+                    
+                    <div class="flex items-center space-x-2">
+                        <div class="status-indicator status-working"></div>
+                        <span class="text-sm text-gray">System Online</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="pt-20 pb-8">
+        <div class="max-w-7xl mx-auto px-6">
+            <!-- Header Section -->
+            <div class="mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-3xl font-orbitron font-bold text-white mb-2" id="main-title">Eagle Vision Command Center</h2>
+                        <p class="text-gray">Real-time AI-powered surveillance and monitoring</p>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <select id="camera-layout" class="bg-navy border border-cyan/30 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-cyan">
+                            <option value="2x2">2x2 Grid</option>
+                            <option value="3x3" selected>3x3 Grid</option>
+                            <option value="4x4">4x4 Grid</option>
+                        </select>
+                        
+                        <button id="fullscreen-btn" class="btn-primary px-4 py-2 rounded-lg">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 11-1.414 1.414L5 6.414V8a1 1 0 01-2 0V4zm9 1a1 1 0 010-2h4a1 1 0 011 1v4a1 1 0 01-2 0V6.414l-2.293 2.293a1 1 0 11-1.414-1.414L13.586 5H12zm-9 7a1 1 0 012 0v1.586l2.293-2.293a1 1 0 111.414 1.414L6.414 15H8a1 1 0 010 2H4a1 1 0 01-1-1v-4zm13-1a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 010-2h1.586l-2.293-2.293a1 1 0 111.414-1.414L15 13.586V12a1 1 0 011-1z" clip-rule="evenodd"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dashboard Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <!-- Camera Feeds Section -->
+                <div class="lg:col-span-3">
+                    <div class="glass-panel rounded-xl p-6 mb-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-semibold text-white">Live Camera Feeds</h3>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm text-gray">AI Detection:</span>
+                                <div class="w-12 h-6 bg-green rounded-full relative cursor-pointer" id="ai-toggle">
+                                    <div class="w-5 h-5 bg-white rounded-full absolute top-0.5 left-0.5 transition-transform duration-300" id="ai-toggle-slider"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Camera Grid -->
+                        <div id="camera-grid" class="grid grid-cols-3 gap-4">
+                            <!-- Camera feeds will be dynamically generated -->
+                        </div>
+                    </div>
+                    
+                    <!-- Analytics Charts -->
+                    <div class="glass-panel rounded-xl p-6">
+                        <h3 class="text-xl font-semibold text-white mb-4">Activity Analytics</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="text-sm font-medium text-gray mb-2">Person Count Timeline</h4>
+                                <div id="person-count-chart" style="height: 200px;"></div>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-medium text-gray mb-2">Activity Heatmap</h4>
+                                <div id="activity-heatmap" style="height: 200px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sidebar -->
+                <div class="lg:col-span-1 space-y-6">
+                    <!-- Google AdSense Ad Unit -->
+                    <div class="glass-panel rounded-xl p-4">
+                        <div class="text-center">
+                            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+                                 crossorigin="anonymous"></script>
+                            <!-- AI Security Monitor Sidebar Ad -->
+                            <ins class="adsbygoogle"
+                                 style="display:block"
+                                 data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                                 data-ad-slot="YYYYYYYYYY"
+                                 data-ad-format="auto"
+                                 data-full-width-responsive="true"></ins>
+                            <script>
+                                 (adsbygoogle = window.adsbygoogle || []).push({});
+                            </script>
+                        </div>
+                    </div>
+                    
+                    <!-- System Status -->
+                    <div class="glass-panel rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-white mb-4">System Status</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray">CPU Usage</span>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-16 h-2 bg-gray-700 rounded-full overflow-hidden">
+                                        <div class="h-full bg-gradient-to-r from-cyan to-green rounded-full" style="width: 65%" id="cpu-bar"></div>
+                                    </div>
+                                    <span class="text-sm text-white font-mono">65%</span>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray">Memory</span>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-16 h-2 bg-gray-700 rounded-full overflow-hidden">
+                                        <div class="h-full bg-gradient-to-r from-cyan to-green rounded-full" style="width: 78%" id="memory-bar"></div>
+                                    </div>
+                                    <span class="text-sm text-white font-mono">78%</span>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray">Network</span>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-16 h-2 bg-gray-700 rounded-full overflow-hidden">
+                                        <div class="h-full bg-gradient-to-r from-cyan to-green rounded-full" style="width: 45%" id="network-bar"></div>
+                                    </div>
+                                    <span class="text-sm text-white font-mono">45%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Live Metrics -->
+                    <div class="glass-panel rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-white mb-4">Live Metrics</h3>
+                        <div class="space-y-4">
+                            <div class="metric-card rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray">People Detected</span>
+                                    <span class="text-2xl font-bold text-cyan" id="people-count">12</span>
+                                </div>
+                            </div>
+                            
+                            <div class="metric-card rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray">Active Cameras</span>
+                                    <span class="text-2xl font-bold text-green" id="active-cameras">9</span>
+                                </div>
+                            </div>
+                            
+                            <div class="metric-card rounded-lg p-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray">Alerts Today</span>
+                                    <span class="text-2xl font-bold text-amber" id="alert-count">3</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Activity -->
+                    <div class="glass-panel rounded-xl p-6">
+                        <h3 class="text-lg font-semibold text-white mb-4">Recent Activity</h3>
+                        <div class="space-y-3" id="activity-feed">
+                            <!-- Activity items will be dynamically generated -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Alert Popup -->
+    <div id="alert-popup" class="alert-popup hidden">
+        <div class="glass-panel rounded-lg p-4 max-w-sm">
+            <div class="flex items-start space-x-3">
+                <div class="w-8 h-8 bg-red rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h4 class="text-sm font-semibold text-white" id="alert-title">Motion Detected</h4>
+                    <p class="text-xs text-gray mt-1" id="alert-message">Unusual activity detected in Camera 3</p>
+                </div>
+                <button id="alert-close" class="text-gray hover:text-white">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mobile Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 z-50 glass-panel md:hidden">
+        <div class="flex items-center justify-around py-3">
+            <a href="index.html" class="flex flex-col items-center space-y-1 text-cyan">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                </svg>
+                <span class="text-xs">Dashboard</span>
+            </a>
+            <a href="admin.html" class="flex flex-col items-center space-y-1 text-gray hover:text-cyan">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                </svg>
+                <span class="text-xs">Admin</span>
+            </a>
+            <a href="pricing.html" class="flex flex-col items-center space-y-1 text-gray hover:text-cyan">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"/>
+                </svg>
+                <span class="text-xs">Pricing</span>
+            </a>
+            <a href="auth.html" class="flex flex-col items-center space-y-1 text-gray hover:text-cyan">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clip-rule="evenodd"/>
+                </svg>
+                <span class="text-xs">Account</span>
+            </a>
+        </div>
+    </nav>
+    
+    <!-- Footer -->
+    <footer class="mt-16 py-8 border-t border-gray-800 md:pb-20">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <p class="text-gray text-sm">&copy; 2024 Eagle Vision. Advanced surveillance technology for modern security operations.</p>
+        </div>
+    </footer>
+    
+    <script src="main.js"></script>
+</body>
+</html> <script src="main.js"></script>
+</body>
+</html>

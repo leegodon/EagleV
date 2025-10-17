@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing Plans - AI Security Monitor</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'navy': '#1a1d29',
+                        'cyan': '#00d4ff',
+                        'green': '#00ff88',
+                        'amber': '#ffa500',
+                        'red': '#ff4757',
+                        'gray': '#6c7293',
+                        'charcoal': '#0f1419'
+                    },
+                    fontFamily: {
+                        'orbitron': ['Orbitron', 'monospace'],
+                        'inter': ['Inter', 'sans-serif'],
+                        'mono': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f1419 0%, #1a1d29 50%, #0f1419 100%);
+            min-height: 100vh;
+        }
+        
+        .glass-panel {
+            background: rgba(26, 29, 41, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+        }
+        
+        .nav-link {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-link:hover {
+            color: #00d4ff;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #00d4ff;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #00d4ff, #00ff88);
+            border: none;
+            color: #0f1419;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid #00d4ff;
+            color: #00d4ff;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0, 212, 255, 0.2);
+            transform: translateY(-1px);
+        }
+        
+        .pricing-card {
+            background: linear-gradient(135deg, rgba(26, 29, 41, 0.9), rgba(42, 45, 57, 0.9));
+            border: 1px solid rgba(108, 114, 147, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+            border-color: rgba(0, 212, 255, 0.5);
+        }
+        
+        .pricing-card.popular {
+            border-color: #00d4ff;
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(26, 29, 41, 0.9));
+        }
+        
+        .pricing-card.popular::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+        }
+        
+        .feature-item.included {
+            color: #00ff88;
+        }
+        
+        .feature-item.excluded {
+            color: #6c7293;
+        }
+        
+        .billing-toggle {
+            background: rgba(26, 29, 41, 0.8);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            padding: 4px;
+            display: inline-flex;
+            position: relative;
+        }
+        
+        .billing-option {
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 2;
+            position: relative;
+        }
+        
+        .billing-option.active {
+            color: #0f1419;
+        }
+        
+        .billing-slider {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 80px;
+            height: 36px;
+            background: linear-gradient(45deg, #00d4ff, #00ff88);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            z-index: 1;
+        }
+        
+        .billing-slider.yearly {
+            transform: translateX(84px);
+        }
+        
+        .payment-form {
+            background: rgba(26, 29, 41, 0.6);
+            border: 1px solid rgba(108, 114, 147, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+        }
+        
+        .form-input {
+            background: rgba(15, 20, 25, 0.8);
+            border: 1px solid rgba(108, 114, 147, 0.3);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: rgba(26, 29, 41, 0.95);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 16px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .usage-meter {
+            background: rgba(26, 29, 41, 0.6);
+            border-radius: 8px;
+            height: 8px;
+            overflow: hidden;
+        }
+        
+        .usage-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            border-radius: 8px;
+            transition: width 0.3s ease;
+        }
+        
+        .comparison-table {
+            background: rgba(26, 29, 41, 0.6);
+            border: 1px solid rgba(108, 114, 147, 0.3);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .comparison-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            border-bottom: 1px solid rgba(108, 114, 147, 0.2);
+        }
+        
+        .comparison-row:last-child {
+            border-bottom: none;
+        }
+        
+        .comparison-cell {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .comparison-cell:first-child {
+            justify-content: flex-start;
+            font-weight: 500;
+        }
+        
+        .comparison-header {
+            background: rgba(0, 212, 255, 0.1);
+            font-weight: 600;
+            color: #00d4ff;
+        }
+        
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+        }
+        
+        .status-online { background: #00ff88; }
+        .status-offline { background: #ff4757; }
+        .status-warning { background: #ffa500; }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body class="font-inter text-white">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-panel">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-gradient-to-r from-cyan to-green rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-charcoal" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <h1 class="text-xl font-orbitron font-bold text-cyan">AI Security Monitor</h1>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-6">
+                    <a href="index.html" class="nav-link text-gray hover:text-cyan">Dashboard</a>
+                    <a href="admin.html" class="nav-link text-gray hover:text-cyan">Admin</a>
+                    <a href="pricing.html" class="nav-link text-white hover:text-cyan">Pricing</a>
+                    <a href="auth.html" class="nav-link text-gray hover:text-cyan">Login</a>
+                    
+                    <div class="flex items-center space-x-2">
+                        <div class="status-indicator status-online"></div>
+                        <span class="text-sm text-gray">System Online</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="pt-20 pb-8">
+        <div class="max-w-7xl mx-auto px-6">
+            <!-- Header Section -->
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-orbitron font-bold text-white mb-4" id="pricing-title">Choose Your Security Plan</h2>
+                <p class="text-xl text-gray mb-8">Advanced AI-powered surveillance solutions for every business size</p>
+                
+                <!-- Billing Toggle -->
+                <div class="flex items-center justify-center space-x-4 mb-8">
+                    <span class="text-gray">Monthly</span>
+                    <div class="billing-toggle">
+                        <div class="billing-slider" id="billing-slider"></div>
+                        <div class="billing-option active" onclick="toggleBilling('monthly')">Monthly</div>
+                        <div class="billing-option" onclick="toggleBilling('yearly')">Yearly</div>
+                    </div>
+                    <span class="text-gray">Yearly <span class="text-green text-sm">(Save 20%)</span></span>
+                </div>
+            </div>
+            
+            <!-- Camera-Based Pricing Plans -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+                <!-- Hotel Basic (5 cameras) -->
+                <div class="pricing-card rounded-xl p-6">
+                    <div class="text-center mb-6">
+                        <h3 class="text-xl font-semibold text-white mb-2">Hotel Basic</h3>
+                        <div class="mb-4">
+                            <span class="text-4xl font-bold text-white">$28</span>
+                            <span class="text-gray">/month</span>
+                        </div>
+                        <p class="text-sm text-gray">Perfect for small hotels</p>
+                    </div>
+                    
+                    <div class="space-y-3 mb-8">
+                        <div class="feature-item included">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>5 Camera Connections</span>
+                        </div>
+                        
+                        <div class="feature-item included">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Hotel AI Detection</span>
+                        </div>
+                        
+                        <div class="feature-item included">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>30-Day Storage</span>
+                        </div>
+                        
+                        <div class="feature-item included">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Priority Email Support</span>
+                        </div>
+                        
+                        <div class="feature-item included">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Guest Privacy Mode</span>
+                        </div>
+                        
+                        <div class="feature-item excluded">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>API Access</span>
+                        </div>
+                    </div>
+                    
+                    <button class="w-full btn-secondary px-4 py-3 rounded-lg font-semibold" onclick="selectPlan('hotel-basic')">
+                        Start Free Trial
+                    </button>
+                </div>
+                
+                <!-- Hotel Plus (10 cameras) -->
+                <div class="pricing-card popular rounded-xl p-6">
+                    <div class="text-center mb-6">
+                        <div class="flex items-center justify-center mb-2">
+                            <h3 class="text-xl font-semibold text-white">Hotel Plus</h3>
+                            <span class="ml-2 bg-cyan text-charcoal text-xs px-2 py-1 rounded font-semibold">POPULAR</span>
+                        </div>
+                        <div class="mb-4">
+                            <span class="text-4xl font-bold text-white">$56</span>
+                            <span class="text-gray">/month</span>
+                            <div class="text-sm text-gray mt-1">12% savings vs basic</div>
+                        </div>
+                        <p class="text-sm text-gray">Perfect for medium hotels</p>
+                    </div>
+                    
+                    <div class="space-y-3 mb-8">
+                        <div class="feature-item included">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>10 Camera Connections</span>
+                        </div>
+                        
+                        <div class="feature-item included">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Advanced Hotel AI</span>
+                        </div>
+                        
+                        <div class="feature-item included">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>60-Day Storage</span>
+                        </div>
+                        
+                        <div class="feature-item included">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Phone & Email Support</span>
+                        </div>
+                        
+                        <div class="feature-item included">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Advanced Analytics</span>
+                        </div>
+                        
+                        <div class="feature-item included">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Staff Monitoring</span>
+                        </div>
+                    </div>
+                    
+                    <button class="w-full btn-primary px-4 py-3 rounded-lg font-semibold" onclick="selectPlan('hotel-plus')">
+                        Start Free Trial
+                    </button>
+                </div>
+                
+                <!-- Enterprise 50 (50 cameras) -->
+                <div class="pricing-card rounded-xl p-6">
+                    <div class="text-center mb-6">
+                        <h3 class="text-xl font-semibold text-white mb-2">Enterprise 50</h3>
+                        <div class="mb-4">
+                            <span class="text-4xl font-bold text-white">$280</span>
+                            <span class="text-gray">/month</span>
+                            <div class="text-sm text-gray mt-1">Save $280 annually</div>
+                        </div>
+                        <p class="text-sm text-gray">Large hotel chains</p>
+                    </div>
+                    
+                    <div class="space-y-3 mb-8">
+                        <div class="feature-item included">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>50 Camera Connections</span>
+                        </div>
+                        
+                        <div class="feature-item included">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Enterprise AI Suite</span>
+                        </div>
+                        
+                        <div class="feature-item included">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>180-Day Storage</span>
+                        </div>
+                        
+                        <div class="feature-item included">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>24/7 Phone Support</span>
+                        </div>
+                        
+                        <div class="feature-item included">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>Custom Analytics</span>
+                        </div>
+                        
+                        <div class="feature-item included">
+                            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <span>API Access</span>
+                        </div>
+                    </div>
+                    
+                    <button class="w-full btn-primary px-4 py-3 rounded-lg font-semibold" onclick="selectPlan('enterprise-50')">
+                        Start Free Trial
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Feature Comparison Table -->
+            <div class="mb-16">
+                <h3 class="text-2xl font-orbitron font-bold text-white text-center mb-8">Feature Comparison</h3>
+                
+                <div class="comparison-table">
+                    <div class="comparison-row comparison-header">
+                        <div class="comparison-cell">Features</div>
+                        <div class="comparison-cell">Free</div>
+                        <div class="comparison-cell">Starter</div>
+                        <div class="comparison-cell">Professional</div>
+                        <div class="comparison-cell">Enterprise</div>
+                    </div>
+                    
+                    <div class="comparison-row">
+                        <div class="comparison-cell">Camera Connections</div>
+                        <div class="comparison-cell">1</div>
+                        <div class="comparison-cell">5</div>
+                        <div class="comparison-cell">20</div>
+                        <div class="comparison-cell">Unlimited</div>
+                    </div>
+                    
+                    <div class="comparison-row">
+                        <div class="comparison-cell">AI Detection</div>
+                        <div class="comparison-cell">Basic</div>
+                        <div class="comparison-cell">Advanced</div>
+                        <div class="comparison-cell">Full Suite</div>
+                        <div class="comparison-cell">Custom Models</div>
+                    </div>
+                    
+                    <div class="comparison-row">
+                        <div class="comparison-cell">Storage Duration</div>
+                        <div class="comparison-cell">7 Days</div>
+                        <div class="comparison-cell">30 Days</div>
+                        <div class="comparison-cell">90 Days</div>
+                        <div class="comparison-cell">365 Days</div>
+                    </div>
+                    
+                    <div class="comparison-row">
+                        <div class="comparison-cell">Support Level</div>
+                        <div class="comparison-cell">Email</div>
+                        <div class="comparison-cell">Priority Email</div>
+                        <div class="comparison-cell">Phone & Email</div>
+                        <div class="comparison-cell">24/7 Phone</div>
+                    </div>
+                    
+                    <div class="comparison-row">
+                        <div class="comparison-cell">API Access</div>
+                        <div class="comparison-cell">❌</div>
+                        <div class="comparison-cell">❌</div>
+                        <div class="comparison-cell">✅</div>
+                        <div class="comparison-cell">✅</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dynamic Camera Pricing Calculator -->
+            <div class="glass-panel rounded-xl p-8 mb-16">
+                <h3 class="text-2xl font-orbitron font-bold text-white text-center mb-8">Camera-Based Pricing Calculator</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <label class="block text-sm font-medium text-gray mb-2">Number of Cameras</label>
+                        <input type="range" min="1" max="400" value="5" class="w-full" id="camera-slider">
+                        <div class="flex justify-between text-xs text-gray mt-1">
+                            <span>1</span>
+                            <span id="camera-count-display">5</span>
+                            <span>400</span>
+                        </div>
+                        <div class="mt-2 text-sm text-gray">Base price: $28 per 5 cameras</div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray mb-2">Your Plan</label>
+                        <div class="text-2xl font-bold text-cyan" id="calculated-plan-name">Hotel Starter</div>
+                        <div class="text-lg text-white" id="calculated-price">$28/month</div>
+                        <div class="text-sm text-gray mt-1" id="calculated-features">5 cameras • Basic AI • 30-day storage</div>
+                    </div>
+                </div>
+                
+                <!-- Camera Pricing Tiers -->
+                <div class="mt-8">
+                    <h4 class="text-lg font-semibold text-white mb-4">Camera Pricing Tiers</h4>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div class="bg-navy/50 rounded-lg p-3">
+                            <div class="font-semibold text-cyan">Hotel Starter</div>
+                            <div>5 cameras: $28/mo</div>
+                        </div>
+                        <div class="bg-navy/50 rounded-lg p-3">
+                            <div class="font-semibold text-cyan">Hotel Plus</div>
+                            <div>10 cameras: $56/mo</div>
+                        </div>
+                        <div class="bg-navy/50 rounded-lg p-3">
+                            <div class="font-semibold text-cyan">Enterprise 50</div>
+                            <div>50 cameras: $280/mo</div>
+                        </div>
+                        <div class="bg-navy/50 rounded-lg p-3">
+                            <div class="font-semibold text-cyan">Enterprise 100</div>
+                            <div>100 cameras: $560/mo</div>
+                        </div>
+                        <div class="bg-navy/50 rounded-lg p-3">
+                            <div class="font-semibold text-cyan">Enterprise 200</div>
+                            <div>200 cameras: $1,120/mo</div>
+                        </div>
+                        <div class="bg-navy/50 rounded-lg p-3">
+                            <div class="font-semibold text-cyan">Enterprise 300</div>
+                            <div>300 cameras: $1,680/mo</div>
+                        </div>
+                        <div class="bg-navy/50 rounded-lg p-3">
+                            <div class="font-semibold text-cyan">Enterprise 400</div>
+                            <div>400 cameras: $2,240/mo</div>
+                        </div>
+                        <div class="bg-navy/50 rounded-lg p-3">
+                            <div class="font-semibold text-cyan">Custom Enterprise</div>
+                            <div>400+ cameras: Custom</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Google AdSense Banner -->
+            <div class="glass-panel rounded-xl p-4 mb-16">
+                <div class="text-center">
+                    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX"
+                         crossorigin="anonymous"></script>
+                    <!-- AI Security Monitor Banner Ad -->
+                    <ins class="adsbygoogle"
+                         style="display:block"
+                         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                         data-ad-slot="ZZZZZZZZZZ"
+                         data-ad-format="horizontal"
+                         data-full-width-responsive="true"></ins>
+                    <script>
+                         (adsbygoogle = window.adsbygoogle || []).push({});
+                    </script>
+                </div>
+            </div>
+            
+            <!-- FAQ Section -->
+            <div class="mb-16">
+                <h3 class="text-2xl font-orbitron font-bold text-white text-center mb-8">Frequently Asked Questions</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="text-lg font-semibold text-white mb-2">Can I change my plan anytime?</h4>
+                            <p class="text-gray">Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately.</p>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-lg font-semibold text-white mb-2">Is there a free trial?</h4>
+                            <p class="text-gray">Yes, we offer a 14-day free trial for all paid plans. No credit card required to start.</p>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-lg font-semibold text-white mb-2">What payment methods do you accept?</h4>
+                            <p class="text-gray">We accept all major credit cards, PayPal, and bank transfers for enterprise accounts.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="text-lg font-semibold text-white mb-2">How accurate is the AI detection?</h4>
+                            <p class="text-gray">Our AI detection achieves 94.7% accuracy with continuous learning and improvement.</p>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-lg font-semibold text-white mb-2">Can I use my existing cameras?</h4>
+                            <p class="text-gray">Yes, our system works with most IP cameras that support RTSP or HTTP streaming.</p>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-lg font-semibold text-white mb-2">Is my data secure?</h4>
+                            <p class="text-gray">Absolutely. We use enterprise-grade encryption and follow strict security protocols.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="modal">
+        <div class="modal-content p-8">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-semibold text-white">Complete Your Subscription</h3>
+                <button onclick="closeModal('payment-modal')" class="text-gray hover:text-white">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <div class="flex items-center justify-between p-4 bg-navy/50 rounded-lg">
+                    <div>
+                        <h4 class="text-white font-semibold" id="selected-plan-name">Starter Plan</h4>
+                        <p class="text-gray text-sm" id="selected-plan-description">Perfect for small businesses</p>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-2xl font-bold text-white" id="selected-plan-price">$29</div>
+                        <div class="text-gray text-sm">/month</div>
+                    </div>
+                </div>
+            </div>
+            
+            <form class="space-y-4" onsubmit="processPayment(event)">
+                <div>
+                    <label class="block text-sm font-medium text-gray mb-2">Email Address</label>
+                    <input type="email" class="w-full form-input" placeholder="your@email.com" required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray mb-2">Full Name</label>
+                    <input type="text" class="w-full form-input" placeholder="John Smith" required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray mb-2">Card Number</label>
+                    <input type="text" class="w-full form-input" placeholder="1234 5678 9012 3456" required>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray mb-2">Expiry Date</label>
+                        <input type="text" class="w-full form-input" placeholder="MM/YY" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray mb-2">CVV</label>
+                        <input type="text" class="w-full form-input" placeholder="123" required>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-2">
+                    <input type="checkbox" id="terms" class="w-4 h-4 text-cyan bg-navy border-gray-600 rounded" required>
+                    <label for="terms" class="text-sm text-gray">I agree to the Terms of Service and Privacy Policy</label>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray mb-2">Payment Method</label>
+                    <div class="space-y-3">
+                        <label class="flex items-center p-3 border border-gray-600 rounded-lg cursor-pointer hover:border-cyan">
+                            <input type="radio" name="payment-method" value="paypal" class="w-4 h-4 text-cyan" checked>
+                            <div class="ml-3 flex items-center">
+                                <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center mr-3">
+                                    <svg class="w-4 h-4 text-white" viewBox="0 0 24 24">
+                                        <path fill="currentColor" d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="text-white font-semibold">PayPal</div>
+                                    <div class="text-sm text-gray">Pay with your PayPal account</div>
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-3 border border-gray-600 rounded-lg cursor-pointer hover:border-cyan">
+                            <input type="radio" name="payment-method" value="stripe" class="w-4 h-4 text-cyan">
+                            <div class="ml-3 flex items-center">
+                                <div class="w-8 h-8 bg-purple-600 rounded flex items-center justify-center mr-3">
+                                    <svg class="w-4 h-4 text-white" viewBox="0 0 24 24">
+                                        <path fill="currentColor" d="M11.173 12.312L8.71 17.09l-2.563-4.777-1.174 2.187L8.71 22h2.926l4.87-9.688H11.173zM24 9.697L14.127 0H9.873L4.405 9.697h2.926l1.174-2.187L10.063 12l3.29-6.375L16.547 12l3.29-6.375L23.107 0H14.127L24 9.697z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="text-white font-semibold">Credit Card</div>
+                                    <div class="text-sm text-gray">Pay with Visa, Mastercard, etc.</div>
+                                </div>
+                            </div>
+                        </label>
+                        
+                        <label class="flex items-center p-3 border border-gray-600 rounded-lg cursor-pointer hover:border-cyan">
+                            <input type="radio" name="payment-method" value="bankwire" class="w-4 h-4 text-cyan">
+                            <div class="ml-3 flex items-center">
+                                <div class="w-8 h-8 bg-green-600 rounded flex items-center justify-center mr-3">
+                                    <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div class="text-white font-semibold">Bank Wire Transfer</div>
+                                    <div class="text-sm text-gray">Direct bank transfer</div>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="flex space-x-4 pt-4">
+                    <button type="button" class="flex-1 btn-secondary px-4 py-3 rounded-lg" onclick="closeModal('payment-modal')">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 btn-primary px-4 py-3 rounded-lg">
+                        Start Free Trial
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="mt-16 py-8 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <p class="text-gray text-sm">&copy; 2024 AI Security Monitor. Advanced surveillance technology for modern security operations.</p>
+        </div>
+    </footer>
+    
+    <script>
+        let currentBilling = 'monthly';
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            initializePricingAnimations();
+            setupUsageCalculator();
+        });
+        
+        // Pricing animations
+        function initializePricingAnimations() {
+            anime({
+                targets: '.pricing-card',
+                translateY: [50, 0],
+                opacity: [0, 1],
+                delay: anime.stagger(100),
+                duration: 800,
+                easing: 'easeOutQuart'
+            });
+            
+            // Animate title
+            new Typed('#pricing-title', {
+                strings: ['Choose Your Security Plan', 'Advanced AI Surveillance', 'Scalable Security Solutions'],
+                typeSpeed: 50,
+                backSpeed: 30,
+                backDelay: 3000,
+                loop: true
+            });
+        }
+        
+        // Billing toggle
+        function toggleBilling(billing) {
+            const slider = document.getElementById('billing-slider');
+            const options = document.querySelectorAll('.billing-option');
+            
+            currentBilling = billing;
+            
+            if (billing === 'yearly') {
+                slider.classList.add('yearly');
+                options[0].classList.remove('active');
+                options[1].classList.add('active');
+            } else {
+                slider.classList.remove('yearly');
+                options[0].classList.add('active');
+                options[1].classList.remove('active');
+            }
+            
+            updatePricing();
+        }
+        
+        // Update pricing based on billing cycle
+        function updatePricing() {
+            const prices = {
+                monthly: [0, 29, 99, 299],
+                yearly: [0, 290, 990, 2990]
+            };
+            
+            const priceElements = document.querySelectorAll('.pricing-card .text-4xl');
+            const suffixElements = document.querySelectorAll('.pricing-card .text-gray');
+            
+            priceElements.forEach((element, index) => {
+                const price = prices[currentBilling][index];
+                element.textContent = `$${price}`;
+                
+                if (currentBilling === 'yearly' && price > 0) {
+                    suffixElements[index].textContent = '/year';
+                } else {
+                    suffixElements[index].textContent = '/month';
+                }
+            });
+        }
+        
+        // Plan selection
+        function selectPlan(planName) {
+            const planData = {
+                'hotel-basic': { name: 'Hotel Basic', price: '$28', description: '5 cameras • Hotel AI • 30-day storage' },
+                'hotel-plus': { name: 'Hotel Plus', price: '$56', description: '10 cameras • Advanced AI • 60-day storage' },
+                'enterprise-50': { name: 'Enterprise 50', price: '$280', description: '50 cameras • Enterprise AI • 180-day storage' },
+                'enterprise': { name: 'Enterprise Plan', price: 'Custom', description: 'For large organizations' }
+            };
+            
+            if (planName === 'enterprise') {
+                alert('Enterprise sales team will contact you within 24 hours.');
+                return;
+            }
+            
+            const plan = planData[planName];
+            document.getElementById('selected-plan-name').textContent = plan.name;
+            document.getElementById('selected-plan-description').textContent = plan.description;
+            document.getElementById('selected-plan-price').textContent = plan.price;
+            
+            document.getElementById('payment-modal').classList.add('show');
+        }
+        
+        // Close modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+        
+        // Process payment
+        function processPayment(event) {
+            event.preventDefault();
+            
+            const paymentMethod = document.querySelector('input[name="payment-method"]:checked').value;
+            
+            // Simulate payment processing based on method
+            const button = event.target.querySelector('button[type="submit"]');
+            const originalText = button.textContent;
+            
+            button.textContent = 'Processing...';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                let message = '';
+                switch(paymentMethod) {
+                    case 'paypal':
+                        message = 'Redirecting to PayPal for payment authorization...';
+                        break;
+                    case 'stripe':
+                        message = 'Processing credit card payment...';
+                        break;
+                    case 'bankwire':
+                        message = 'Bank wire transfer instructions will be sent to your email.';
+                        break;
+                    default:
+                        message = 'Payment processed successfully! Welcome to Eagle Vision.';
+                }
+                
+                alert(message);
+                closeModal('payment-modal');
+                button.textContent = originalText;
+                button.disabled = false;
+            }, 2000);
+        }
+        
+        // Setup camera-based pricing calculator
+        function setupUsageCalculator() {
+            const cameraSlider = document.getElementById('camera-slider');
+            const cameraCountDisplay = document.getElementById('camera-count-display');
+            const calculatedPlanName = document.getElementById('calculated-plan-name');
+            const calculatedPrice = document.getElementById('calculated-price');
+            const calculatedFeatures = document.getElementById('calculated-features');
+            
+            function updateCameraPricing() {
+                const cameras = parseInt(cameraSlider.value);
+                cameraCountDisplay.textContent = cameras;
+                
+                // Calculate price based on $28 per 5 cameras
+                const price = Math.ceil(cameras / 5) * 28;
+                
+                let planName, features, storage;
+                
+                if (cameras <= 5) {
+                    planName = 'Hotel Basic';
+                    features = '5 cameras • Hotel AI • 30-day storage';
+                    storage = '30 days';
+                } else if (cameras <= 10) {
+                    planName = 'Hotel Plus';
+                    features = '10 cameras • Advanced AI • 60-day storage';
+                    storage = '60 days';
+                } else if (cameras <= 50) {
+                    planName = 'Enterprise 50';
+                    features = `${cameras} cameras • Enterprise AI • 180-day storage`;
+                    storage = '180 days';
+                } else if (cameras <= 100) {
+                    planName = 'Enterprise 100';
+                    features = `${cameras} cameras • Enterprise AI • 180-day storage`;
+                    storage = '180 days';
+                } else if (cameras <= 200) {
+                    planName = 'Enterprise 200';
+                    features = `${cameras} cameras • Enterprise AI • 365-day storage`;
+                    storage = '365 days';
+                } else if (cameras <= 400) {
+                    planName = 'Enterprise 400';
+                    features = `${cameras} cameras • Enterprise AI • 365-day storage`;
+                    storage = '365 days';
+                } else {
+                    planName = 'Custom Enterprise';
+                    features = '400+ cameras • Custom AI • Custom storage';
+                    storage = 'Custom';
+                }
+                
+                calculatedPlanName.textContent = planName;
+                calculatedPrice.textContent = `$${price}/month`;
+                calculatedFeatures.textContent = features;
+            }
+            
+            cameraSlider.addEventListener('input', updateCameraPricing);
+            updateCameraPricing(); // Initialize on load
+        }
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', (event) => {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('show');
+            }
+        });
+        
+        // View all transactions
+        function viewAllTransactions() {
+            alert('Transaction history feature coming soon! Full payment tracking dashboard will be available.');
+        }
+    </script>
+</body>
+</html>
